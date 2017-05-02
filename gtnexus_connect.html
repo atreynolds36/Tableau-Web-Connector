@@ -1,0 +1,74 @@
+<html>
+
+<head>
+    <title>GT Nexus REST API Data Connector</title>
+    <meta http-equiv="Cache-Control" content="no-store" />
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" type="text/javascript"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+    <script src="https://connectors.tableau.com/libs/tableauwdc-2.2.latest.js" type="text/javascript"></script>
+    <!-- Use to access cookie storage to grab access token -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.0.2/js.cookie.min.js" type="text/javascript"></script>
+
+    <!-- Tableau Desktop does not natively support Promises - add script here -->
+    <script src="https://www.promisejs.org/polyfills/promise-7.0.4.min.js"></script>
+    <script src="gtnexus_connect.js" type="text/javascript"></script>
+</head>
+
+<body>
+<div class="container container-table">
+    <div class="row vertical-center-row" >
+        <p id="text">TEXT</p>
+        <div class="col-md-8 col-md-offset-2" id="authenticationForm">
+            <h4>Please use your GT Nexus Credentials to Authenticate</h4>
+            <label class="control-label">Username</label>
+            <input type="text" id="username" class="form-control"/>
+            <label class="control-label">Password</label>
+            <input type="password" id="password" class="form-control"/>
+            <button type="button" id="authButton" class="btn btn-success" data-loading-text="Authenticating...">Authenticate</button>
+            <p id="authErrorMsg" style="color:red;"></p>
+        </div>
+
+        <div class="col-md-8 col-md-offset-2" id="queryForm" style="display:none;">
+            <div class="form-group">
+                <label for="qUID">Question Id</label>
+                <input type="text" class="form-control" id="qUID" placeholder="Question Design Id" value="178203133" />
+            </div>
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" class="form-control">
+                    <option></option>
+                    <option value="ECONOMY">Economical</option>
+                    <option value="PROFILE">Partner Profile</option>
+                    <option value="SOCIAL">Social</option>
+                    <option value="TESTING">Testing</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="qText">Question Text</label>
+                <input type="text" class="form-control" id="qText" placeholder="Question Text"/>
+            </div>
+            <div class="text-center col-md-4 col-md-offset-4" >
+                <button type="button" id="queryForQuestions" class="btn btn-success" style="margin: 10px;"
+                        data-loading-text="Requesting...">Query For Questions</button>
+            </div>
+        </div>
+
+        <div class="col-md-8 col-md-offset-2" id="selectQuestionDesignForm" style="display:none;">
+            <div class="form-group">
+                <label for="question">Select a Question</label>
+                <select id="question" class="form-control">
+                    <option value="false">Select A Question</option>
+                </select>
+            </div>
+            <div class="text-center col-md-4 col-md-offset-4" >
+                <button type="button" id="tableauSubmit" class="btn btn-success" style="margin: 10px;">Tableau Gather Data</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+</html>

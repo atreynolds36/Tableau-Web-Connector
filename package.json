@@ -1,0 +1,7 @@
+{
+  "name" : "gtn-api-tableau-web-data-connector",
+  "version" : "0.9.0",
+  "scripts" : {
+    "serve" : "node proxy_server/app"
+  }
+}

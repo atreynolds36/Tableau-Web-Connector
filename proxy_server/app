@@ -1,0 +1,153 @@
+#!/usr/bin/env node
+'use strict';
+
+var express = require('express');
+
+var app = express();
+
+app.set('port', process.env.PORT || 8050 );
+
+var server = app.listen(app.get('port') , function(){
+    console.log('Express server listening on port' + server.address().port);
+});
+
+//ROUTES
+
+
+var router = express.Router();
+
+const request = require('request');
+
+app.use( function(req,res,next){
+    res.header('Access-Control-Allow-Origin' , 'http://localhost:8888');
+    next();
+});
+
+
+router.get('/gtn-suppq-rest/310' , (req,res) => {
+    console.log( req.query.auth );
+    console.log( req.query.url );
+
+    //TODO TEMP - STATIC AUTH
+    //var auth = "Basic b2RoX3VzZXI6dGVzdDEyMzQ=";
+
+    var get_request_opts = {
+        headers : {
+            Authorization :  req.query.auth,
+            datakey : req.query.datakey
+        },
+        url : req.query.url , //encodeURI( req.get('url') ) ,
+        method : 'GET' ,
+        json : true,
+        port : 443
+    };
+
+    request(get_request_opts , function(err, httpResponse, body){
+        if(err){
+            res.status(500).send();
+            return;
+        }
+        if(httpResponse.statusCode != 200 ){
+            console.log('ERR ' + httpResponse.statusCode + ' - ' + req.query.url );
+        }
+        res.status( httpResponse.statusCode );
+        res.json(body);
+    });
+});
+
+router.get('/authenticate/310' , (req,res) => {
+    var authentication = Base64.encode( req.query.username + ":" + req.query.password );
+
+    var get_request_opts = {
+        headers : {
+            Authorization : authentication,
+            datakey : req.query.datakey
+        },
+        url : req.query.url ,
+        method : 'GET' ,
+        json : true,
+        port : 443
+    };
+
+    request(get_request_opts , function(err, httpResponse, body){
+        if(err){
+            res.status(500).send();
+            return;
+        }
+        if( httpResponse.statusCode == 200 ){
+            //req.app.set('authorization-token' , httpResponse.headers['authorization'] );
+            req.app.set('authorization-token' , authentication );
+            res.json( { auth : authentication })
+        } else{
+            res.json( { auth : false });
+        }
+    });
+});
+
+app.use('/' , router );
+
+var Base64 = {
+
+
+    _keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+
+
+    encode: function (input) {
+        var output = "";
+        var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+        var i = 0;
+
+        input = Base64._utf8_encode(input);
+
+        while (i < input.length) {
+
+            chr1 = input.charCodeAt(i++);
+            chr2 = input.charCodeAt(i++);
+            chr3 = input.charCodeAt(i++);
+
+            enc1 = chr1 >> 2;
+            enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+            enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+            enc4 = chr3 & 63;
+
+            if (isNaN(chr2)) {
+                enc3 = enc4 = 64;
+            } else if (isNaN(chr3)) {
+                enc4 = 64;
+            }
+
+            output = output + this._keyStr.charAt(enc1) + this._keyStr.charAt(enc2) + this._keyStr.charAt(enc3) + this._keyStr.charAt(enc4);
+
+        }
+
+        return "Basic " + output;
+    },
+
+    _utf8_encode: function (string) {
+        string = string.replace(/\r\n/g, "\n");
+        var utftext = "";
+
+        for (var n = 0; n < string.length; n++) {
+
+            var c = string.charCodeAt(n);
+
+            if (c < 128) {
+                utftext += String.fromCharCode(c);
+            }
+            else if ((c > 127) && (c < 2048)) {
+                utftext += String.fromCharCode((c >> 6) | 192);
+                utftext += String.fromCharCode((c & 63) | 128);
+            }
+            else {
+                utftext += String.fromCharCode((c >> 12) | 224);
+                utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+                utftext += String.fromCharCode((c & 63) | 128);
+            }
+
+        }
+
+        return utftext;
+
+
+    }
+};
